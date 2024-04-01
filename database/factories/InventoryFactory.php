@@ -20,7 +20,7 @@ class InventoryFactory extends Factory
         return [
             'name' => fake()->company(),
             'description' => fake()->text(100),
-            'user_id' => User::factory()
+            'user_id' => User::factory(),
         ];
     }
 }

@@ -2,16 +2,16 @@
 
 namespace Database\Seeders;
 
-use App\Models\Inventory;
+use App\Models\Item;
 use Illuminate\Database\Seeder;
 
-class InventorySeeder extends Seeder
+class ItemSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        Inventory::factory(5)->create();
+        Item::factory(10)->create();
     }
 }
