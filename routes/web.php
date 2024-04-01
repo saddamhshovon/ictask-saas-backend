@@ -7,7 +7,7 @@ Route::get('/', function () {
     return response()->json(
         [
             'app' => config('app.name'),
-            'developer' => "@saddamhshovon"
+            'developer' => '@saddamhshovon',
         ],
         Response::HTTP_OK
     );
