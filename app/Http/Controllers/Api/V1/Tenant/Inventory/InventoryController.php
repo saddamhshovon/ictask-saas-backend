@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1\Tenant\Inventory;
 
-use App\Exceptions\InventoryExistsException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Inventory\InventoryStoreRequest;
 use App\Http\Requests\Inventory\InventoryUpdateRequest;
@@ -20,8 +19,7 @@ class InventoryController extends Controller
     public function store(InventoryStoreRequest $request)
     {
         try {
-            $this->checkExistingInventory();
-            Inventory::create([...$request->validated(), 'user_id' => 99]);
+            Inventory::create([...$request->validated(), 'user_id' => auth()->id()]);
 
             return response()->json(
                 [
@@ -47,25 +45,12 @@ class InventoryController extends Controller
     }
 
     /**
-     * Check if user has existing inventory.
-     */
-    private function checkExistingInventory(): void
-    {
-        // TODO: change the condition after authentication.
-        if (Inventory::first()) {
-            // $inventory = Inventory::currentTenant()->exists();
-            throw new InventoryExistsException;
-        }
-    }
-
-    /**
      * Display the specified resource.
      */
     public function show()
     {
         try {
-            $inventory = Inventory::first();
-            // $inventory = Inventory::currentTenant()->firstOrFail();
+            $inventory = Inventory::currentTenant()->firstOrFail();
 
             return new InventoryResource($inventory);
         } catch (ModelNotFoundException) {
@@ -91,9 +76,7 @@ class InventoryController extends Controller
     public function update(InventoryUpdateRequest $request)
     {
         try {
-            // TODO: change the condition after authentication.
-            $inventory = Inventory::firstOrFail();
-            // $inventory = Inventory::currentTenant()->firstOrFail();
+            $inventory = Inventory::currentTenant()->firstOrFail();
 
             $inventory->update($request->validated());
 
@@ -126,9 +109,7 @@ class InventoryController extends Controller
     public function destroy()
     {
         try {
-            // TODO: change the condition after authentication.
-            $inventory = Inventory::firstOrFail();
-            // $inventory = Inventory::currentTenant()->firstOrFail();
+            $inventory = Inventory::currentTenant()->firstOrFail();
 
             $inventory->delete();
 
