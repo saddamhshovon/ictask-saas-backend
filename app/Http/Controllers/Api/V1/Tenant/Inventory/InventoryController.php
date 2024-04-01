@@ -1,0 +1,157 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1\Tenant\Inventory;
+
+use App\Exceptions\InventoryExistsException;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Inventory\InventoryStoreRequest;
+use App\Http\Requests\Inventory\InventoryUpdateRequest;
+use App\Http\Resources\Inventory\InventoryResource;
+use App\Models\Inventory;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Http\Response;
+
+class InventoryController extends Controller
+{
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(InventoryStoreRequest $request)
+    {
+        try {
+            $this->checkExistingInventory();
+            Inventory::create([...$request->validated(), 'user_id' => 99]);
+
+            return response()->json(
+                [
+                    'message' => 'Inventory created successfully.',
+                ],
+                Response::HTTP_CREATED
+            );
+        } catch (UniqueConstraintViolationException) {
+            return response()->json(
+                [
+                    'message' => 'You already have an inventory.',
+                ],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        } catch (\Throwable $th) {
+            return response()->json(
+                [
+                    'message' => $th->getMessage(),
+                ],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    /**
+     * Check if user has existing inventory.
+     */
+    private function checkExistingInventory(): void
+    {
+        // TODO: change the condition after authentication.
+        if (Inventory::first()) {
+            // $inventory = Inventory::currentTenant()->exists();
+            throw new InventoryExistsException;
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show()
+    {
+        try {
+            $inventory = Inventory::first();
+            // $inventory = Inventory::currentTenant()->firstOrFail();
+
+            return new InventoryResource($inventory);
+        } catch (ModelNotFoundException) {
+            return response()->json(
+                [
+                    'message' => "You don't have a inventory.",
+                ],
+                Response::HTTP_NOT_FOUND
+            );
+        } catch (\Throwable $th) {
+            return response()->json(
+                [
+                    'message' => $th->getMessage(),
+                ],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(InventoryUpdateRequest $request)
+    {
+        try {
+            // TODO: change the condition after authentication.
+            $inventory = Inventory::firstOrFail();
+            // $inventory = Inventory::currentTenant()->firstOrFail();
+
+            $inventory->update($request->validated());
+
+            return response()->json(
+                [
+                    'message' => 'Inventory information updated.',
+                ],
+                Response::HTTP_OK
+            );
+        } catch (ModelNotFoundException) {
+            return response()->json(
+                [
+                    'message' => "You don't have a inventory.",
+                ],
+                Response::HTTP_NOT_FOUND
+            );
+        } catch (\Throwable $th) {
+            return response()->json(
+                [
+                    'message' => $th->getMessage(),
+                ],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy()
+    {
+        try {
+            // TODO: change the condition after authentication.
+            $inventory = Inventory::firstOrFail();
+            // $inventory = Inventory::currentTenant()->firstOrFail();
+
+            $inventory->delete();
+
+            return response()->json(
+                [
+                    'message' => 'Inventory deleted successfully.',
+                ],
+                Response::HTTP_OK
+            );
+        } catch (ModelNotFoundException) {
+            return response()->json(
+                [
+                    'message' => "You don't have a inventory.",
+                ],
+                Response::HTTP_NOT_FOUND
+            );
+        } catch (\Throwable $th) {
+            return response()->json(
+                [
+                    'message' => $th->getMessage(),
+                ],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+}
