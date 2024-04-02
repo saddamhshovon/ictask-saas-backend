@@ -18,7 +18,7 @@ Backend for the given task of SaaS Inventory.
 git clone git@github.com:saddamhshovon/ictask-saas-backend.git
 ```
 
-2. Enter intro the directory
+2. Enter into the directory
 
 ```bash
 cd ictask-saas-backend
