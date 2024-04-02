@@ -35,6 +35,13 @@ class ItemController extends Controller
                 ->paginate(perPage: $perPage, page: $pageNumber);
 
             return ItemResource::collection($items);
+        } catch (ModelNotFoundException) {
+            return response()->json(
+                [
+                    'message' => "You don't have an inventory.",
+                ],
+                Response::HTTP_NOT_FOUND
+            );
         } catch (\Throwable $th) {
             return response()->json(
                 [
