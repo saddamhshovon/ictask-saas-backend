@@ -18,7 +18,12 @@ class UserSeeder extends Seeder
                 'email' => 'admin@example.com',
             ]
         );
-        User::factory(5)->unverified()->create();
-        User::factory(5)->create();
+        User::factory()->create(
+            [
+                'name' => 'Tenant',
+                'email' => 'tenant@example.com',
+            ]
+        );
+        // User::factory(5)->create();
     }
 }

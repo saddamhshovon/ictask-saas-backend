@@ -16,7 +16,7 @@ class AuthenticationController extends Controller
             $remember = $request->validated('remember') ?? false;
 
             $token = $user->createToken(
-                name: $request->validated('email'),
+                name: $user->email,
                 expiresAt: $remember ? null : now()->addDecade()
             )->plainTextToken;
 
@@ -24,6 +24,8 @@ class AuthenticationController extends Controller
                 [
                     'message' => 'Login successful.',
                     'data' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
                         'token' => $token,
                     ],
                 ],
