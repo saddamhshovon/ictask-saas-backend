@@ -113,12 +113,7 @@ class InventoryController extends Controller
 
             $inventory->delete();
 
-            return response()->json(
-                [
-                    'message' => 'Inventory deleted successfully.',
-                ],
-                Response::HTTP_OK
-            );
+            return response()->noContent();
         } catch (ModelNotFoundException) {
             return response()->json(
                 [
