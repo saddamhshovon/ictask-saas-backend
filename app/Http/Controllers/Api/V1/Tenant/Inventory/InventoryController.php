@@ -32,7 +32,7 @@ class InventoryController extends Controller
                 [
                     'message' => 'You already have an inventory.',
                 ],
-                Response::HTTP_INTERNAL_SERVER_ERROR
+                Response::HTTP_CONFLICT
             );
         } catch (\Throwable $th) {
             return response()->json(
