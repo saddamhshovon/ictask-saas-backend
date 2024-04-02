@@ -90,7 +90,7 @@ class ItemController extends Controller
 
             return response()->json(
                 [
-                    'message' => "You don't have a inventory.",
+                    'message' => "You don't have an inventory.",
                 ],
                 Response::HTTP_NOT_FOUND
             );
