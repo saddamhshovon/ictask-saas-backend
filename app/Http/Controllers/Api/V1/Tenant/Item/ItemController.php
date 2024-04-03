@@ -60,17 +60,19 @@ class ItemController extends Controller
         try {
             $inventoryId = Inventory::belongsToCurrentTenant()->firstOrFail()->id;
 
+            $validated = $request->validated();
+
             $image = $this->saveImage(
                 prefix: 'item',
-                name: $request->validated('name'),
-                image: $request->validated('image'),
+                name: $validated['name'],
+                image: $validated['image'],
                 other: time(),
                 directory: 'items',
             );
 
             Item::create(
                 [
-                    ...$request->validated(),
+                    ...$validated,
                     'image' => $image,
                     'inventory_id' => $inventoryId,
                 ]
@@ -83,8 +85,7 @@ class ItemController extends Controller
                 Response::HTTP_CREATED
             );
         } catch (UniqueConstraintViolationException) {
-            ! (isset($image) && file_exists($image))
-            ?: unlink(public_path($image));
+            ! isset($image) ?: $this->removeImage($image);
 
             return response()->json(
                 [
@@ -101,8 +102,7 @@ class ItemController extends Controller
                 Response::HTTP_NOT_FOUND
             );
         } catch (\Throwable $th) {
-            ! (isset($image) && file_exists($image))
-            ?: unlink(public_path($image));
+            ! isset($image) ?: $this->removeImage($image);
 
             return response()->json(
                 [
@@ -151,6 +151,7 @@ class ItemController extends Controller
 
             if (isset($validated['image'])) {
                 $oldImage = $item->image;
+
                 $image = $this->saveImage(
                     prefix: 'item',
                     name: $validated['name'],
@@ -164,8 +165,7 @@ class ItemController extends Controller
 
             $item->update($validated);
 
-            ! (isset($image) && file_exists($oldImage))
-            ?: unlink(public_path($oldImage));
+            ! isset($image) ?: $this->removeImage($oldImage);
 
             return response()->json(
                 [
@@ -181,8 +181,7 @@ class ItemController extends Controller
                 Response::HTTP_NOT_FOUND
             );
         } catch (UniqueConstraintViolationException) {
-            ! (isset($image) && file_exists($image))
-            ?: unlink(public_path($image));
+            ! isset($image) ?: $this->removeImage($image);
 
             return response()->json(
                 [
@@ -191,8 +190,7 @@ class ItemController extends Controller
                 Response::HTTP_UNPROCESSABLE_ENTITY
             );
         } catch (\Throwable $th) {
-            ! (isset($image) && file_exists($image))
-            ?: unlink(public_path($image));
+            ! isset($image) ?: $this->removeImage($image);
 
             return response()->json(
                 [
@@ -213,7 +211,7 @@ class ItemController extends Controller
             $image = $item->image;
             $item->delete();
 
-            ! file_exists($image) ?: unlink(public_path($image));
+            ! isset($image) ?: $this->removeImage($image);
 
             return response()->noContent();
         } catch (ModelNotFoundException) {

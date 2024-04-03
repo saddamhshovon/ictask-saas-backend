@@ -24,4 +24,9 @@ trait HasImage
 
         return $publicLocation.'/'.$name;
     }
+
+    private function removeImage(string $image): bool
+    {
+        return ! file_exists($image) ?: unlink(public_path($image));
+    }
 }
