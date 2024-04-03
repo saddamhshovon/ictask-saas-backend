@@ -20,6 +20,6 @@ class Item extends Model
 
     public function scopeBelongsToCurrentTenant(Builder $query): void
     {
-        $query->where('inventory_id', Inventory::currentTenant()->firstOrFail()->id);
+        $query->where('inventory_id', Inventory::belongsToCurrentTenant()->firstOrFail()->id);
     }
 }

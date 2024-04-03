@@ -50,7 +50,7 @@ class InventoryController extends Controller
     public function show()
     {
         try {
-            $inventory = Inventory::currentTenant()->firstOrFail();
+            $inventory = Inventory::belongsToCurrentTenant()->firstOrFail();
 
             return new InventoryResource($inventory);
         } catch (ModelNotFoundException) {
@@ -76,7 +76,7 @@ class InventoryController extends Controller
     public function update(InventoryUpdateRequest $request)
     {
         try {
-            $inventory = Inventory::currentTenant()->firstOrFail();
+            $inventory = Inventory::belongsToCurrentTenant()->firstOrFail();
 
             $inventory->update($request->validated());
 
@@ -109,7 +109,7 @@ class InventoryController extends Controller
     public function destroy()
     {
         try {
-            $inventory = Inventory::currentTenant()->firstOrFail();
+            $inventory = Inventory::belongsToCurrentTenant()->firstOrFail();
 
             $inventory->delete();
 

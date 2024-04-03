@@ -46,7 +46,7 @@ return [
     |
     */
 
-    'expiration' => env('TOKEN_EXPIRATION', 120),
+    'expiration' => env('TOKEN_EXPIRATION', null),
 
     /*
     |--------------------------------------------------------------------------

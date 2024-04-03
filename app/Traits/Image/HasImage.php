@@ -9,20 +9,19 @@ trait HasImage
         string $name,
         \Illuminate\Http\UploadedFile $image,
         ?int $other,
-        string $storageLocation,
-        string $publicLocation,
-    ): array {
+        string $directory,
+    ): string {
         $name = str_replace(
             [' ', '%', ':'],
             '',
             $prefix.'-'.$name.($other ? '-'.$other : '')
         ).'.'.$image->extension();
 
+        $storageLocation = 'public/'.$directory;
+        $publicLocation = 'storage/'.$directory;
+
         $image->storeAs($storageLocation, $name);
 
-        return [
-            'storage' => $storageLocation.'/'.$name,
-            'public' => $publicLocation.'/'.$name,
-        ];
+        return $publicLocation.'/'.$name;
     }
 }

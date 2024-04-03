@@ -58,21 +58,20 @@ class ItemController extends Controller
     public function store(ItemStoreRequest $request)
     {
         try {
+            $inventoryId = Inventory::belongsToCurrentTenant()->firstOrFail()->id;
+
             $image = $this->saveImage(
                 prefix: 'item',
                 name: $request->validated('name'),
                 image: $request->validated('image'),
                 other: time(),
-                storageLocation: 'public/items',
-                publicLocation: 'storage/items'
+                directory: 'items',
             );
-
-            $inventoryId = Inventory::currentTenant()->firstOrFail()->id;
 
             Item::create(
                 [
                     ...$request->validated(),
-                    'image' => $image['public'],
+                    'image' => $image,
                     'inventory_id' => $inventoryId,
                 ]
             );
@@ -84,7 +83,8 @@ class ItemController extends Controller
                 Response::HTTP_CREATED
             );
         } catch (UniqueConstraintViolationException) {
-            Storage::delete($image['storage']);
+            ! (isset($image) && file_exists($image))
+            ?: unlink(public_path($image));
 
             return response()->json(
                 [
@@ -93,7 +93,6 @@ class ItemController extends Controller
                 Response::HTTP_UNPROCESSABLE_ENTITY
             );
         } catch (ModelNotFoundException) {
-            Storage::delete($image['storage']);
 
             return response()->json(
                 [
@@ -102,7 +101,8 @@ class ItemController extends Controller
                 Response::HTTP_NOT_FOUND
             );
         } catch (\Throwable $th) {
-            Storage::delete($image['storage']);
+            ! (isset($image) && file_exists($image))
+            ?: unlink(public_path($image));
 
             return response()->json(
                 [
@@ -148,6 +148,7 @@ class ItemController extends Controller
             $item = Item::belongsToCurrentTenant()->findOrFail($id);
 
             $validated = $request->validated();
+
             if (isset($validated['image'])) {
                 $oldImage = $item->image;
                 $image = $this->saveImage(
@@ -155,18 +156,16 @@ class ItemController extends Controller
                     name: $validated['name'],
                     image: $validated['image'],
                     other: time(),
-                    storageLocation: 'public/items',
-                    publicLocation: 'storage/items'
+                    directory: 'items',
                 );
 
-                $validated = [...$validated, 'image' => $image['public']];
+                $validated = [...$validated, 'image' => $image];
             }
 
             $item->update($validated);
 
-            if (isset($image)) {
-                Storage::delete('public'.substr($oldImage, 7));
-            }
+            ! (isset($image) && file_exists($oldImage))
+            ?: unlink(public_path($oldImage));
 
             return response()->json(
                 [
@@ -182,9 +181,8 @@ class ItemController extends Controller
                 Response::HTTP_NOT_FOUND
             );
         } catch (UniqueConstraintViolationException) {
-            if (isset($image)) {
-                Storage::delete($image['storage']);
-            }
+            ! (isset($image) && file_exists($image))
+            ?: unlink(public_path($image));
 
             return response()->json(
                 [
@@ -193,9 +191,8 @@ class ItemController extends Controller
                 Response::HTTP_UNPROCESSABLE_ENTITY
             );
         } catch (\Throwable $th) {
-            if (isset($image)) {
-                Storage::delete($image['storage']);
-            }
+            ! (isset($image) && file_exists($image))
+            ?: unlink(public_path($image));
 
             return response()->json(
                 [
@@ -215,7 +212,8 @@ class ItemController extends Controller
             $item = Item::belongsToCurrentTenant()->findOrFail($id);
             $image = $item->image;
             $item->delete();
-            Storage::delete('public'.substr($image, 7));
+
+            ! file_exists($image) ?: unlink(public_path($image));
 
             return response()->noContent();
         } catch (ModelNotFoundException) {

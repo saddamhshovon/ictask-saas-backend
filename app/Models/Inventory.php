@@ -24,7 +24,7 @@ class Inventory extends Model
         return $this->hasMany(Item::class);
     }
 
-    public function scopeCurrentTenant(Builder $query): void
+    public function scopeBelongsToCurrentTenant(Builder $query): void
     {
         $query->where('user_id', auth()->id());
     }
