@@ -26,13 +26,13 @@ class ItemController extends Controller
     {
         try {
             $perPage = $request->query('per_page', 10);
-            $pageNumber = $request->query('page_number', null);
+            $page = $request->query('page', null);
             $search = $request->query('search', null);
 
             $items = Item::belongsToCurrentTenant()
                 ->when($search !== null, fn ($query) => $query->where('name', 'like', '%'.$search.'%'))
                 ->latest()
-                ->paginate(perPage: $perPage, page: $pageNumber);
+                ->paginate(perPage: $perPage, page: $page);
 
             return ItemResource::collection($items);
         } catch (ModelNotFoundException) {

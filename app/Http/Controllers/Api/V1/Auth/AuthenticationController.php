@@ -17,7 +17,7 @@ class AuthenticationController extends Controller
 
             $token = $user->createToken(
                 name: $user->email,
-                expiresAt: $remember ? null : now()->addDecade()
+                expiresAt: $remember ? null : now()->addHour()
             )->plainTextToken;
 
             return response()->json(
